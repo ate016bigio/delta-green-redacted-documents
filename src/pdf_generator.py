@@ -12,6 +12,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from PIL import Image as PILImage
 from utils import wrap_text
+from utils import redact_in_line
 
 # output_path = 'example.pdf'
 # page_size = (673, 930)
@@ -39,7 +40,6 @@ def pdf_generator(
     available_width = width - 2 * margin_in_pixels
 
     if background_image_path:
-        pil_image = PILImage.open(background_image_path)
         pdf.drawImage(background_image_path, 0, 0, width=width, height=height)
 
     pdfmetrics.registerFont(TTFont(font_name, f'{font_name}.ttf'))
@@ -56,6 +56,9 @@ def pdf_generator(
                 if background_image_path:
                     pdf.drawImage(background_image_path, 0, 0, width=width, height=height)
 
-            pdf.drawString(margin_in_pixels, y_position, wrapped_line)  # Draw text line by line
+            redacted_line = redact_in_line(wrapped_line, font_name, font_size, margin_in_pixels, y_position + 10, pdf)
+            pdf.setFillColorRGB(0, 0, 0)  # Set text color to black
+            pdf.drawString(margin_in_pixels, y_position, redacted_line)
+            pdf.drawString(margin_in_pixels, y_position, redacted_line)  # Draw text line by line
             y_position -= font_size + 5  # Move the position for the next line
     pdf.save()
